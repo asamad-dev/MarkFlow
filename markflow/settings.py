@@ -43,10 +43,20 @@ INSTALLED_APPS = [
 ]
 
 REST_FRAMEWORK = {
+    # 'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
+
+# SPECTACULAR_SETTINGS = {
+#     'COMPONENT_SPLIT_REQUEST': True,
+#     'SWAGGER_UI_SETTINGS': {
+#         'persistAuthorization': True,
+#     },
+#     'SERVE_INCLUDE_SCHEMA': False,
+# }
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

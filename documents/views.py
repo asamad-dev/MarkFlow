@@ -1,13 +1,19 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.throttling import UserRateThrottle
 from django.contrib.auth import authenticate
 from .models import Document, Tag
 from .serializers import DocumentSerializer, TagSerializer, UserLoginSerializer
 
+# Custom throttle for login
+class LoginThrottle(UserRateThrottle):
+    rate = '5/min'  # Allow 5 login attempts per minute
+
 @api_view(['POST'])
+@throttle_classes([LoginThrottle])
 def login_user(request, id):
     serializer = UserLoginSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -32,12 +38,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Document.objects.filter(user=self.request.user)
 
-        # Sorting
         sort_by = self.request.query_params.get('sort_by')
         if sort_by in ['created', 'updated']:
             queryset = queryset.order_by(sort_by)
 
-        # Filtering by tag
         tag_id = self.request.query_params.get('tag')
         if tag_id:
             queryset = queryset.filter(tags__id=tag_id)
@@ -46,6 +50,3 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-
-
-
