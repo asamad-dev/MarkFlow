@@ -1,16 +1,16 @@
-from rest_framework import viewsets, status
-from rest_framework.response import Response
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes, throttle_classes
+from rest_framework.decorators import api_view, throttle_classes
+from rest_framework.response import Response
+from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.throttling import UserRateThrottle
 from django.contrib.auth import authenticate
-from .models import Document, Tag
-from .serializers import DocumentSerializer, TagSerializer, UserLoginSerializer
+from .models import Document
+from .serializers import DocumentSerializer, UserLoginSerializer
 
-# Custom throttle for login
 class LoginThrottle(UserRateThrottle):
-    rate = '5/min'  # Allow 5 login attempts per minute
+    rate = '5/min'
 
 @api_view(['POST'])
 @throttle_classes([LoginThrottle])
@@ -32,6 +32,7 @@ def login_user(request, id):
     })
 
 class DocumentViewSet(viewsets.ModelViewSet):
+    queryset = Document.objects.all()
     serializer_class = DocumentSerializer
     permission_classes = [IsAuthenticated]
 
